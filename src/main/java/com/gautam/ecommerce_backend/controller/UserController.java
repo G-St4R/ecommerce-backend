@@ -14,6 +14,8 @@ import com.gautam.ecommerce_backend.dto.UserResponseDTO;
 import com.gautam.ecommerce_backend.entity.User;
 import com.gautam.ecommerce_backend.service.UserService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -22,7 +24,7 @@ public class UserController {
 	private UserService userService;
 	
 	@PostMapping
-	public UserResponseDTO createUser(@RequestBody UserRequestDTO requestDTO) {
+	public UserResponseDTO createUser(@Valid @RequestBody UserRequestDTO requestDTO) {
 		return userService.saveUser(requestDTO);
 	}
 	
