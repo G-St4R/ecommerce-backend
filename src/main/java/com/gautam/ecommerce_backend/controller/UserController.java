@@ -1,6 +1,8 @@
 package com.gautam.ecommerce_backend.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,9 +37,16 @@ public class UserController {
 		return userService.getAllUsers();
 	}
 	
+	
 	@PostMapping("/login")
-	public String loginUser(@Valid @RequestBody LoginRequestDTO requestDTO) {
-		return userService.loginUser(requestDTO);
+	public Map<String, String> loginUser(@Valid @RequestBody LoginRequestDTO requestDTO) {
+
+	    String token = userService.loginUser(requestDTO);
+
+	    Map<String, String> response = new HashMap<>();
+	    response.put("token", token);
+
+	    return response;
 	}
 
 }

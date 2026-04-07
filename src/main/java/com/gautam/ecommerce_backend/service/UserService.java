@@ -13,6 +13,7 @@ import com.gautam.ecommerce_backend.entity.User;
 import com.gautam.ecommerce_backend.exception.InvalidCredentialsException;
 import com.gautam.ecommerce_backend.exception.UserAlreadyExistsException;
 import com.gautam.ecommerce_backend.repository.UserRepository;
+import com.gautam.ecommerce_backend.security.JwtUtil;
 
 @Service
 public class UserService {
@@ -22,6 +23,10 @@ public class UserService {
 	
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private JwtUtil jwtUtil;
+	
 	
 	public UserResponseDTO saveUser(UserRequestDTO requestDTO) {
 		
@@ -52,6 +57,6 @@ public class UserService {
 		if(!passwordEncoder.matches(requestDTO.getPassword(), user.getPassword())) {
 			throw new InvalidCredentialsException("Invalid Email or password");
 		}
-		return "Login Succesful";
+		return jwtUtil.generateToken(user.getEmail());
 	}
 }
