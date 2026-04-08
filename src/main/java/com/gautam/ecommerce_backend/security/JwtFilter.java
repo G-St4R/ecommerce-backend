@@ -3,6 +3,9 @@ package com.gautam.ecommerce_backend.security;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -16,6 +19,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtUtil jwtUtil;
+    
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, 
@@ -23,27 +29,22 @@ public class JwtFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        // ✅ DEBUG: to confirm filter is running
-        System.out.println("JwtFilter is running...");
+
+       // System.out.println("JwtFilter is running...");
 
         String authHeader = request.getHeader("Authorization");
         String path = request.getRequestURI();
 
-        // 🔥 CHANGE 1: Added METHOD CHECK (VERY IMPORTANT)
-        // WHY: Earlier you allowed ALL /api/users requests (including GET)
-        // NOW: Only allow POST /api/users (register) and login API
-
+        //System.out.println("Authenticated: " + 
+        	   // SecurityContextHolder.getContext().getAuthentication());
         if (path.equals("/api/users/login") || 
            (path.equals("/api/users") && request.getMethod().equals("POST"))) {
 
-            // ✅ Public APIs → allow request
+
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 🔥 CHANGE 2: Enforce token presence
-        // WHY: Earlier, if token was missing → request still passed
-        // NOW: Block request if no token
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -52,11 +53,8 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Extract token
         String token = authHeader.substring(7);
 
-        // 🔥 CHANGE 3: Enforce token validity
-        // WHY: Invalid tokens should NOT be allowed
 
         if (!jwtUtil.isTokenValid(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -65,11 +63,14 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        // ✅ Valid token → extract user info
         String email = jwtUtil.extractEmail(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
         System.out.println("Authenticated user: " + email);
 
-        // Continue request
+
         filterChain.doFilter(request, response);
     }
 }
