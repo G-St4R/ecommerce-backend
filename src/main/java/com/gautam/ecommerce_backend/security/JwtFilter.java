@@ -30,13 +30,12 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
 
-       // System.out.println("JwtFilter is running...");
+       //System.out.println("JwtFilter is running...");
 
         String authHeader = request.getHeader("Authorization");
         String path = request.getRequestURI();
 
-        //System.out.println("Authenticated: " + 
-        	   // SecurityContextHolder.getContext().getAuthentication());
+
         if (path.equals("/api/users/login") || 
            (path.equals("/api/users") && request.getMethod().equals("POST"))) {
 
@@ -68,6 +67,8 @@ public class JwtFilter extends OncePerRequestFilter {
         
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
+        //System.out.println("Authenticated: " + 
+         	   //SecurityContextHolder.getContext().getAuthentication());
         System.out.println("Authenticated user: " + email);
 
 
