@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 @Entity
 public class User {
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	@Column(unique = true)
@@ -15,6 +15,20 @@ public class User {
 	
 	private String password;
 	
+	
+	@Enumerated(EnumType.STRING)
+	private Role role;
+	
+	
+	
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
 	public Long getId() {
 	    return id;
 	}

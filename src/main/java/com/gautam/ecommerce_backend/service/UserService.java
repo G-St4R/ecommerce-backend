@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.gautam.ecommerce_backend.dto.LoginRequestDTO;
 import com.gautam.ecommerce_backend.dto.UserRequestDTO;
 import com.gautam.ecommerce_backend.dto.UserResponseDTO;
+import com.gautam.ecommerce_backend.entity.Role;
 import com.gautam.ecommerce_backend.entity.User;
 import com.gautam.ecommerce_backend.exception.InvalidCredentialsException;
 import com.gautam.ecommerce_backend.exception.UserAlreadyExistsException;
@@ -36,7 +37,7 @@ public class UserService {
 		
 		User user = new User();
 		user.setEmail(requestDTO.getEmail());
-		
+		user.setRole(Role.USER);
 		String hashedPassword = passwordEncoder.encode(requestDTO.getPassword());
 		user.setPassword(hashedPassword);
 		
