@@ -1,10 +1,12 @@
 package com.gautam.ecommerce_backend.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.http.HttpRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +14,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
 
         Map<String, String> errors = new HashMap<>();
@@ -21,30 +23,42 @@ public class GlobalExceptionHandler {
                 errors.put(error.getField(), error.getDefaultMessage())
         );
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", 400);
-        response.put("errors", errors);
+        ErrorResponse response = new ErrorResponse(
+        		HttpStatus.BAD_REQUEST.value(),
+        		"Validation Failed!",
+        		errors);
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
     
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleUserAlreadyExists(UserAlreadyExistsException ex) {
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException ex) {
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", 400);
-        response.put("message", ex.getMessage());
+        ErrorResponse response = new ErrorResponse(
+        		HttpStatus.BAD_REQUEST.value(),
+        		"Bad Request!",
+        		ex.getMessage());
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(InvalidCredentialsException.class) 
-    	public ResponseEntity<Map<String, Object>> handleInvalidCredentials(InvalidCredentialsException ex) {
+    	public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentialsException ex) {
 
-    	    Map<String, Object> response = new HashMap<>();
-    	    response.put("status", 401);
-    	    response.put("message", ex.getMessage());
+    	    ErrorResponse response = new ErrorResponse(
+    	    		HttpStatus.UNAUTHORIZED.value(), 
+    	    		"Unauthorized", 
+    	    		ex.getMessage());
 
     	    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     	
+    }
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+     ErrorResponse response = new ErrorResponse(
+    		HttpStatus.INTERNAL_SERVER_ERROR.value(),
+    		"Internal Server Error",
+    		ex.getMessage()
+    		);
+     return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

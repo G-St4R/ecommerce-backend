@@ -11,6 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.gautam.ecommerce_backend.security.CustomAccessDeniedHandler;
+import com.gautam.ecommerce_backend.security.CustomAuthenticationEntryPoint;
 import com.gautam.ecommerce_backend.security.JwtFilter;
 import com.gautam.ecommerce_backend.security.JwtUtil;
 
@@ -24,6 +25,9 @@ public class SecurityConfig {
 	
 	@Autowired
 	private CustomAccessDeniedHandler accessDeniedHandler;
+	
+	@Autowired
+	private CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -43,6 +47,7 @@ public class SecurityConfig {
             	    .anyRequest().authenticated()
             	)
             .exceptionHandling(ex -> ex
+            		.authenticationEntryPoint(authenticationEntryPoint)
                     .accessDeniedHandler(accessDeniedHandler)
                 ).addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
